@@ -14,13 +14,15 @@ def login(user_credentials: Annotated[OAuth2PasswordRequestForm, Depends()], db:
     user = db.query(models.User).filter(user_credentials.username == models.User.username).first()
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     if not utils.verify_password(user_credentials.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"Invalid credentials"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Invalid credentials",
+            headers={"WWW-Authenticate": "Bearer"}
         )
     access_token = oauth2.create_access_token({"id": user.id})
     return schemas.Token(access_token=access_token, token_type="bearer")
