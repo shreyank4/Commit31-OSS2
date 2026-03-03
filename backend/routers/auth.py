@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
@@ -32,7 +33,14 @@ def register(user: schemas.UserCreate, db: Session = Depends(database.get_db)):
     user.password = utils.get_password_hash(user.password)
     new_user = models.User(**user.model_dump())
     db.add(new_user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="username already exists"
+        )
     db.refresh(new_user)
     return new_user
 
