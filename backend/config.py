@@ -18,6 +18,6 @@ class Settings(BaseSettings):
     # Database
     database_path: str
 
-    model_config = SettingsConfigDict(env_file=".env.example")
+    model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()

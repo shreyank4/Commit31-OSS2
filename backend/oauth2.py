@@ -36,7 +36,10 @@ def verify_access_token(token: str, credentials_exception):
     except InvalidTokenError:
         raise credentials_exception
     return token_data
-    
+
+
+# To protect endpoints apply the OAuth2 dependency by adding the below line to the route function signatures that handle sessions
+# current_user: schemas.UserOut = Depends(oauth2.get_current_user)
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(database.get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
